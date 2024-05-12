@@ -1,9 +1,7 @@
-﻿using Blogz.Web.Data;
-using Blogz.Web.Models.Domain;
+﻿using Blogz.Web.Models.Domain;
 using Blogz.Web.Models.ViewModels;
 using Blogz.Web.Repositories;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 namespace Blogz.Web.Controllers
 {
