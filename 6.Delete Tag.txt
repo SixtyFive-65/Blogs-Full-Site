@@ -1,0 +1,31 @@
+1. Edit View
+
+<div class="mb-3">
+	<div class="d-flex">
+		<button type="submit" class="btn btn-dark">Save</button>
+
+		<button type="submit" class="btn btn-danger ms-2" asp-area="" asp-controller="AdminTag" asp-action="Delete">Delete</button>
+	</div>
+</div>
+
+2.Controller
+
+[HttpPost]
+public IActionResult Delete(EditTagRequest request)
+{
+	var tag = blogsDbContext.Tags.Find(request.Id);
+
+	if (tag != null)
+	{
+		blogsDbContext.Tags.Remove(tag);
+
+		blogsDbContext.SaveChanges();
+
+		//show success notification
+
+		return RedirectToAction("GetTags");
+	}
+
+	//show failed notification
+	return RedirectToAction("Edit", new { tagId = request.Id });
+}

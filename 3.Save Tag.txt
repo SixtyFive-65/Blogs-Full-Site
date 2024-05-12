@@ -1,0 +1,97 @@
+1. View Without Model Binding
+
+@{
+}
+<div class="bg-secondary bg-opacity-10 py-2">
+    <div class="container">
+        <h1> Admin : Add New Tag</h1>
+    </div>
+</div>
+
+<div class="container py-5">
+    <form method="post">
+        <div class="mb-3"> @*  every element will have a margin of 3 below them *@
+            <label class="form-label">Name</label>
+            <input type="text" class="form-control" id="name" />
+        </div>
+
+        <div class="mb-3">
+            @*  every element will have a margin of 3 below them *@
+            <label class="form-label">Display Name</label>
+            <input type="text" class="form-control" id="displayName" />
+        </div>
+
+        <div class="mb-3">
+            <button type="submit" class="btn btn-dark">Save</button>
+        </div>
+    </form>
+</div>
+
+
+2.Controller --> Use Request to get values : NB not recommended
+
+public class AdminTagController : Controller
+{
+	[HttpGet]
+	public IActionResult Add()
+	{
+		return View();
+	}
+
+	[HttpPost]
+	[ActionName("Add")]
+	public IActionResult SaveTag()
+	{
+		var name = Request.Form["name"];
+		var displayName = Request.Form["displayName"];
+
+		return View("Add");   // specify the Add view name because the contoller action has a different name
+	}
+}
+#################################### End Above Below is the correct way using Model Binding
+
+1.View With model binding
+
+@model Blogz.Web.Models.ViewModels.SaveTagRequest
+@{
+}
+<div class="bg-secondary bg-opacity-10 py-2">
+    <div class="container">
+        <h1> Admin : Add New Tag</h1>
+    </div>
+</div>
+
+<div class="container py-5">
+    <form method="post">
+        <div class="mb-3"> @*  every element will have a margin of 3 below them *@
+            <label class="form-label">Name</label>
+            <input type="text" class="form-control" asp-for="Name"/>
+        </div>
+
+        <div class="mb-3">
+            @*  every element will have a margin of 3 below them *@
+            <label class="form-label">Display Name</label>
+            <input type="text" class="form-control" asp-for="DisplayName"/>
+        </div>
+
+        <div class="mb-3">
+            <button type="submit" class="btn btn-dark">Save</button>
+        </div>
+    </form>
+</div>
+
+
+2. Controller with model binding
+
+[HttpGet]
+public IActionResult Add()
+{
+   return View();
+}
+
+[HttpPost]
+public IActionResult Add(SaveTagRequest request)
+{
+   return View();
+}
+

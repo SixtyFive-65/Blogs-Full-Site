@@ -1,0 +1,74 @@
+## Site uses bootsrap components
+-> go to https://getbootstrap.com/ for documentation of different classes and elements styles.
+
+1.Go to Views/Shared/Layout.cshtml change navbar theme to dark
+
+<nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-light border-bottom box-shadow mb-3">
+    <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
+
+ change above to below
+
+<nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-dark bg-dark border-bottom box-shadow">  // also remove mb-3 (margin bottom) removes space between container and Nav bar
+    <a class="nav-link text-light" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
+
+Remove "Fluid class from Navbar"
+
+<div class="container-fluid"> change to <div class="container"> // align navbar with the body
+
+2.We want each view to apply its own class so we remove the container class from @RenderBody
+
+<div class="container">
+	<main role="main" class="pb-3">
+		@RenderBody()
+	</main>
+</div>
+
+change to below
+
+<div>
+	<main role="main" class="pb-3">
+		@RenderBody()
+	</main>
+</div>
+
+3.We want to add a dropdown -> go to https://getbootstrap.com/  and search "navbar" or "dropdowns"
+-> Copy the dropdown from the navbar list
+
+<li class="nav-item dropdown">
+	<a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+		Admin
+	</a>
+	<ul class="dropdown-menu">
+		<li><a class="dropdown-item" asp-area="" asp-controller="AdminTag" asp-action="Add">Add New Tag</a></li>
+	</ul>
+</li>
+
+
+->> Add View looks like below
+
+@{
+}
+<div class="bg-secondary bg-opacity-10 py-2">
+    <div class="container">
+        <h1> Admin : Add New Tag</h1>
+    </div>
+</div>
+
+<div class="container py-5">
+    <form method="post">
+        <div class="mb-3"> @*  every element will have a margin of 3 below them *@
+            <label class="form-label">Name</label>
+            <input type="text" class="form-control" id="name" />
+        </div>
+
+        <div class="mb-3">
+            @*  every element will have a margin of 3 below them *@
+            <label class="form-label">Display Name</label>
+            <input type="text" class="form-control" id="displayName" />
+        </div>
+
+        <div class="mb-3">
+            <button type="submit" class="btn btn-dark">Save</button>
+        </div>
+    </form>
+</div>

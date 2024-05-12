@@ -1,0 +1,41 @@
+﻿@model List<Blogz.Web.Models.Domain.Tag>
+@{
+}
+<div class="bg-secondary bg-opacity-10 py-2">
+    <div class="container">
+        <h1> Show All tags</h1>
+    </div>
+</div>
+
+<div class="container py-5">
+    @if (Model is not null && Model.Any())
+    {
+        <table class="table">
+            <thead>
+                <tr>
+                    <th></th>
+                    <th>Id</th>
+                    <th>Name</th>
+                    <th>Display Name</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td>
+                            <a asp-area="" asp-controller="AdminTag" asp-action="Edit" asp-route-tagId="@item.Id">Update</a>
+                        </td>
+                        <td>@item.Id</td>
+                        <td>@item.Name</td>
+                        <td>@item.DisplayName</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+    else
+    {
+        <p>No tags found!!!!</p>
+    }
+</div>

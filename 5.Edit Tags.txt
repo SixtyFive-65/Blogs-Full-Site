@@ -1,0 +1,117 @@
+1. On the Get Tags Grid
+
+<table class="table">
+  <thead>
+	  <tr>
+		  <th></th>
+		  <th>Id</th>
+		  <th>Name</th>
+		  <th>Display Name</th>
+	  </tr>
+  </thead>
+  <tbody>
+	  @foreach (var item in Model)
+	  {
+		  <tr>
+			  <td>
+				  <a asp-area="" asp-controller="AdminTag" asp-action="Edit" asp-route-tagId="@item.Id">Update</a>
+			  </td>
+			  <td>@item.Id</td>
+			  <td>@item.Name</td>
+			  <td>@item.DisplayName</td>
+		  </tr>
+	  }
+  </tbody>
+</table>
+
+2. Edit View
+@model Blogz.Web.Models.ViewModels.EditTagRequest
+@{
+}
+<div class="bg-secondary bg-opacity-10 py-2">
+    <div class="container">
+        <h1> Admin : Edit Tag</h1>
+    </div>
+</div>
+
+<div class="container py-5">
+    @if (Model != null)
+    {
+        <form method="post">
+            <div class="mb-3">
+                @*  every element will have a margin of 3 below them *@
+                <label class="form-label">Id</label>
+                <input type="text" class="form-control" asp-for="Id" readonly />
+            </div>
+            <div class="mb-3">
+                @*  every element will have a margin of 3 below them *@
+                <label class="form-label">Name</label>
+                <input type="text" class="form-control" asp-for="Name" />
+            </div>
+
+            <div class="mb-3">
+                @*  every element will have a margin of 3 below them *@
+                <label class="form-label">Display Name</label>
+                <input type="text" class="form-control" asp-for="DisplayName" />
+            </div>
+
+            <div class="mb-3">
+                <div class="d-flex">
+                    <button type="submit" class="btn btn-dark">Save</button>
+
+                    <button type="submit" class="btn btn-danger ms-2" asp-area="" asp-controller="AdminTag" asp-action="Delete">Delete</button>
+                </div>
+            </div>
+        </form>
+    }
+    else
+    {
+        <p>Tag not found</p>
+    }
+</div>
+
+
+
+3.Controller 
+
+[HttpGet]
+public IActionResult Edit(Guid tagId) // name should match asp-route-tagId "tagId"
+{
+	//var tag = blogsDbContext.Tags.Find(tagId);
+
+	var tag = blogsDbContext.Tags.FirstOrDefault(p => p.Id == tagId);
+
+	if (tag != null)
+	{
+		var editTag = new EditTagRequest
+		{
+			Id = tag.Id,
+			DisplayName = tag.DisplayName,
+			Name = tag.Name
+		};
+
+		return View(editTag);
+	}
+
+	return View(null);
+}
+[HttpPost]
+public async Task<IActionResult> Edit(EditTagRequest request)
+{
+	var existingTag = blogsDbContext.Tags.Find(request.Id);
+
+	if (existingTag != null)
+	{
+		existingTag.Name = request.Name;
+		existingTag.DisplayName = request.DisplayName;
+
+		await blogsDbContext.SaveChangesAsync();
+
+		//show success 
+		RedirectToAction("Edit", new { tagId = request.Id });
+
+	   // return RedirectToAction("GetTags"); can redirect to list 
+	}
+	//show failure
+	return RedirectToAction("Edit", new { tagId = request.Id });
+}

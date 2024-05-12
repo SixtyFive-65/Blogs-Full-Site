@@ -1,0 +1,81 @@
+##Create New Asp.Net Core Web App( MVC)
+
+**you can update launchSettings.json to have your site name on debug https -> mySitehttps
+
+"https": { // you can change to BlogPosthttps or MySitehttps
+ "commandName": "Project",
+ "dotnetRunMessages": true,
+ "launchBrowser": true,
+ "applicationUrl": "https://localhost:7189;http://localhost:5184",
+ "environmentVariables": {
+   "ASPNETCORE_ENVIRONMENT": "Development"
+ }
+ 
+	 
+1.Create Domain Folders inside the models folder and add below models.
+
+-> Many to many relationship between blog and tag, a blog can have many tags and a tag can have many blogs
+
+public class BlogPost
+{
+	public Guid Id { get; set; }
+	public string Heading { get; set; }
+	public string PageTitle { get; set; }
+	public string Content { get; set; }
+	public string ShortDescription { get; set; }
+	public string FeaturedImageUrl { get; set; }
+	public string UrlHandle { get; set; }
+	public DateTime PublishDate { get; set; }
+	public string Author { get; set; }
+	public bool IsVisible { get; set; }
+
+	public ICollection<Tag> Tags { get; set; } --Navigation property
+}
+
+public class Tag
+{
+	public Guid Id { get; set; }
+	public string Name { get; set; }
+	public string DisplayName { get; set; }
+	public ICollection<BlogPost> BlogPosts { get; set; } -- Navigation property
+}
+
+->BlogPostTag Table will be created in the database
+
+NB: Above many to many will result in a BlogPostTag table  
+
+2. Install Efcore : right click dependencies ->(manage nuget packages)
+
+-Microsoft.EntityFrameworkCore.SqlServer
+-Microsoft.EntityFrameworkCore.tools
+
+3.Create Dbcontext class-> Create New Folder in the project -> "Data"
+-Add BlogsDbContext class that inherits from DbContext
+
+public class BlogsDbContext : DbContext
+{
+	public BlogsDbContext(DbContextOptions options) : base(options)  //will allow us to pass options when we dependency inject the dbcontext in Program.cs
+	{
+	}
+
+	public DbSet<BlogPost> BlogPosts { get; set; }
+	public DbSet<Tag> Tags { get; set; }
+}
+
+4. Add Connection string in Appsettings
+
+"ConnectionStrings": {
+"BlogsConnectionString": "Server=RRT01455\\SQLEXPRESS;Database=BlogsDb;Trusted_Connection=True;TrustServerCertificate=Yes"
+}
+
+5.Inject DbContext in Program.cs
+
+---after builder.Services.AddControllersWithViews();  -> Add below to overwrite connectionstring
+
+builder.Services.AddDbContext<BlogsDbContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("BlogsDbConnectionString")));
+	
+6.Run Migration on Package manager console
+
+PM->add-migration "Initial"
+PM->update-database	
