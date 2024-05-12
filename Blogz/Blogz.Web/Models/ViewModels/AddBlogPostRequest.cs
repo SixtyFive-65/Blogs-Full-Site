@@ -15,11 +15,9 @@ namespace Blogz.Web.Models.ViewModels
         public bool IsVisible { get; set; }
 
         //Display Tags
-
-        public IEnumerable<SelectListItem> Tags { get; set; }
+        public IEnumerable<SelectListItem> Tags { get; set; } // Tags populates SelectedTag
 
         //Collect Tag - retreive selected tag
-
-        public string SelectedTag {  get; set; }
+        public string SelectedTag {  get; set; }   //Populated by Tags
     }
 }
