@@ -80,29 +80,28 @@ public class ImagesController : ControllerBase
 }
 
 --PostMan call to upload Image
- ->Post Method -> Body : form-data -> Key: file -> select file and send request. Link to image is returned.
+ ->Post Method -> Body : form-data -> Key: "file" -> select file and send request. Link to image is returned.
  
 4. Add and Edit BlogPost Views
 
- <div class="mb-3">
-	 <label class="form-label">Featured Image Upload</label>
-	 <input type="file" id="FeaturedImageUpload" class="form-control" />
- </div>
+<div class="mb-3">
+	<label class="form-label">Featured Image Upload</label>
+	<input type="file" id="featuredImageUpload" class="form-control" />
+	<img src="" id="featuredImageDisplay" style="display:none;width:300px"
+</div>
 
- <div class="mb-3">
-	 <label class="form-label">Featured Image Url</label>
-	 <input type="text" class="form-control" id="featuredImageUrl" asp-for="FeaturedImageUrl" />
- </div>
+<div class="mb-3">
+	<label class="form-label">Featured Image Url</label>
+	<input type="text" class="form-control" id="featuredImageUrl" asp-for="FeaturedImageUrl" />
+</div>
 
 @section Scripts {
     <script>
         var editor = new FroalaEditor('#content');
 
-        const featureImageUrlElement = $('#FeaturedImageUpload');
-
-        $('#FeaturedImageUpload').change(function uploadFeaturedImage(e) {
-            console.log(e.target.files[0]);
-        });
+        const featuredImageUploadElement = document.getElementById('featuredImageUpload');
+        const featureImageUrlElement = document.getElementById('featuredImageUrl');
+        const featuredImageDisplayElement = document.getElementById('featuredImageDisplay');
 
         async function uploadFeaturedImage(e) {
             console.log(e.target.files[0]);
@@ -114,15 +113,18 @@ public class ImagesController : ControllerBase
             await fetch('/api/Images', {
                 method: 'POST',
                 headers: {
-                    'Accept': '*/*',
-                    'Content-Type': 'application/json'
+                    'Accept': '*/*'
                 },
                 body: data
             }).then(response => response.json()) //convert the response to json
                 .then(result => {
-                    featureImageUrlElement.val = result.link
-                    console.log(result);
+                    featureImageUrlElement.value = result.link
+                    featuredImageDisplayElement.src = result.link;
+                    featuredImageDisplayElement.style.display = 'block';
                 });
         }
+
+        featuredImageUploadElement.addEventListener('change', uploadFeaturedImage);
+
     </script>
 }
