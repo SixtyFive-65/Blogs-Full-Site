@@ -31,7 +31,7 @@
 
         <div class="mb-3">
             <label class="form-label">Featured Image Upload</label>
-            <input type="file" id="FeaturedImageUpload" class="form-control"/>
+            <input type="file" id="FeaturedImageUpload" class="form-control" />
         </div>
 
         <div class="mb-3">
@@ -76,24 +76,34 @@
         </div>
     </form>
 </div>
-@section Scripts{
+@section Scripts {
     <script>
         var editor = new FroalaEditor('#content');
 
-
-        // $('#FeaturedImageUpload').change(function{
-        //     console.log(e.target.files[0]);
-
-        // });
-
-        const featuredUploadElement = $('#FeaturedImageUpload'); /*  $('#FeaturedImageUpload'); */
-
-
-        featuredUploadElement.addEventListener('change', uploadFeaturedImage);
-
+        const featuredImageUpload = document.getElementById('FeaturedImageUpload');
+        const featureImageUrlElement = document.getElementById('#featuredImageUrl');
 
         async function uploadFeaturedImage(e) {
             console.log(e.target.files[0]);
+
+            let data = new FormData();
+
+            data.append('file', e.target.files[0]);
+
+            await fetch('/api/Images', {
+                method: 'POST',
+                headers: {
+                    'Accept': '*/*'
+                },
+                body: data
+            }).then(response => response.json()) //convert the response to json
+                .then(result => {
+                    // featureImageUrlElement.value = result.link
+                    console.log(result);
+                });
         }
+
+        featuredImageUpload.addEventListener('change', uploadFeaturedImage);
+
     </script>
 }
