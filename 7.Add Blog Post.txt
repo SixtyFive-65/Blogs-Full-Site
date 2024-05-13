@@ -58,10 +58,17 @@
             </label>
         </div>
 
-        <div class="mb-3">
-            <label class="form-label">Tags</label>
-            <select class="form-select" asp-items="@Model.Tags" asp-for="SelectedTag"></select>
-        </div>
+         @*<div class="mb-3">
+           <label class="form-label">Tags</label>
+           <select class="form-select" asp-items="@Model.Tags" asp-for="SelectedTag"></select>  //Collect single TagId
+           </div> *@
+
+    <div class="mb-3">
+        <label class="form-label">Tags</label>
+        <select class="form-select" asp-items="@Model.Tags" asp-for="SelectedTags"></select>   @* Collect multiple tagIds *@
+    </div>
+    </div>
+    </div>
 
         <div class="mb-3">
             <button type="submit" class="btn btn-dark">Save</button>
@@ -83,13 +90,16 @@ public class AddBlogPostRequest
 	public string Author { get; set; }
 	public bool IsVisible { get; set; }
 
+	
 	//Display Tags
-
-	public IEnumerable<SelectListItem> Tags { get; set; }
+	public IEnumerable<SelectListItem> Tags { get; set; } // Tags populates SelectedTag
 
 	//Collect Tag - retreive selected tag
+	//public string SelectedTag {  get; set; }   //Populated by Tags // Collects a single tag at a time
 
-	public string SelectedTag {  get; set; }
+	//Collect Tag - retreive selected tags
+	public string[] SelectedTags { get; set; } = Array.Empty<string>();  //Populated by Tags // Collects a list of tagIds
+	public string[] SelectedTags { get; set; } = Array.Empty<string>();  //Populated by Tags // Collects a list of tagIds
 }
 
 3.Controller
@@ -110,6 +120,23 @@ public async Task<IActionResult> Add()
 [HttpPost]
 public async Task<IActionResult> Add(AddBlogPostRequest request)
 {
+	var tags = await tagRepository.GetAllTagsAsync();
+   
+	var blogPostrequest = new BlogPost
+	{
+		Heading = request.Heading,
+		Author = request.Author,
+		Content = request.Content,
+		FeaturedImageUrl = request.FeaturedImageUrl,    
+		IsVisible = request.IsVisible,
+		PageTitle = request.PageTitle,
+		ShortDescription = request.ShortDescription,
+		Tags = tags.Where(p => request.SelectedTags.Contains(p.Id.ToString())).ToList(), //in a real world situation, only loop through the selected tags
+		UrlHandle = request.UrlHandle,
+		PublishDate = request.PublishDate
+	};
 
-	return View();
+	var blogPost = await blogPostRepository.CreateAsync(blogPostrequest);   
+
+	return RedirectToAction("Add");
 }
