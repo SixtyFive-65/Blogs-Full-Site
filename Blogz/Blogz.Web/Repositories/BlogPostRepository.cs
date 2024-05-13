@@ -1,5 +1,6 @@
 ﻿using Blogz.Web.Data;
 using Blogz.Web.Models.Domain;
+using Microsoft.EntityFrameworkCore;
 
 namespace Blogz.Web.Repositories
 {
@@ -31,14 +32,18 @@ namespace Blogz.Web.Repositories
             throw new NotImplementedException();
         }
 
-        public Task<IEnumerable<BlogPost>> GetAllAsync()
+        public async Task<IEnumerable<BlogPost>> GetAllAsync()
         {
-            throw new NotImplementedException();
+            var blogposts = await blogsDbContext.BlogPosts
+                .Include(p => p.Tags)  //Brings related entities
+                .ToListAsync();
+
+            return blogposts;
         }
 
-        public Task<BlogPost?> GetByIdAsync(Guid id)
+        public async Task<BlogPost?> GetByIdAsync(Guid id)
         {
-            throw new NotImplementedException();
+            return await blogsDbContext.BlogPosts.FindAsync(id);
         }
     }
 }

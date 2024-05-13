@@ -54,5 +54,13 @@ namespace Blogz.Web.Controllers
 
             return RedirectToAction("Add");
         }
+
+        [HttpGet]
+        public async Task<IActionResult> GetAllBlogPosts() 
+        {
+            var blogPosts = await blogPostRepository.GetAllAsync();
+
+            return View(blogPosts);
+        }
     }
 }
