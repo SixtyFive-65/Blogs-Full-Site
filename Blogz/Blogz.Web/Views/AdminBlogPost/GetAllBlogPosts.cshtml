@@ -2,6 +2,10 @@
 
 @{
 }
+@if(Model == null || !Model.Any())
+{
+    <p>No Blog Posts found</p>
+}
 
 <div class="bg-secondary bg-opacity-10 py-2">
     <div class="container">
@@ -16,6 +20,7 @@
                 <th>Id</th>
                 <th>Heading</th>
                 <th>Tags</th>
+                <th></th>
             </tr>
         </thead>
         <tbody>
@@ -31,6 +36,9 @@
                                 <span class="badge bg-secondary me-1">@tag.Name</span>
                             }
                         </div>
+                    </td>
+                    <td>
+                        <a asp-asp-area="" asp-asp-controller="AdminBlogPost" asp-action="Edit" asp-route-blogId="@blogPost.Id">Update</a>
                     </td>
                 </tr>
             }

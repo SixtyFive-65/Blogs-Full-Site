@@ -1,0 +1,122 @@
+1. Controller
+
+[HttpGet]
+public async Task<IActionResult> Edit(Guid blogId)
+{
+	var blogpostResponse = await blogPostRepository.GetByIdAsync(blogId);
+
+	var tags = await tagRepository.GetAllTagsAsync();
+
+	if (blogpostResponse == null)
+	{
+		var blogPost = new EditBlogPostRequest
+		{
+			Id = blogpostResponse.Id,
+			Author = blogpostResponse.Author,
+			Heading = blogpostResponse.Heading,
+			Content = blogpostResponse.Content,
+			ShortDescription = blogpostResponse.ShortDescription,
+			PublishDate = blogpostResponse.PublishDate,
+			IsVisible = blogpostResponse.IsVisible,
+			FeaturedImageUrl = blogpostResponse.FeaturedImageUrl,
+			UrlHandle = blogpostResponse.UrlHandle,
+			PageTitle = blogpostResponse.PageTitle,
+			Tags = tags.Select(p => new SelectListItem { Value = p.Id.ToString(), Text = p.Name }),
+			SelectedTags = blogpostResponse.Tags.Select(p => p.Id.ToString()).ToArray(),
+		};
+	}
+
+	return View();
+}
+
+2.Repo
+
+public async Task<BlogPost?> GetByIdAsync(Guid id)
+{
+  return await blogsDbContext.BlogPosts.Include(p => p.Tags).FirstOrDefaultAsync(x => x.Id == id);
+}
+
+3.View
+
+--Edit Button
+<td>
+  <a asp-asp-area="" asp-asp-controller="AdminBlogPost" asp-action="Edit" asp-route-blogId="@blogPost.Id">Update</a>
+</td>
+	  
+--Page	  
+@model Blogz.Web.Models.ViewModels.EditBlogPostRequest
+@{
+}
+
+<div class="bg-secondary bg-opacity-10 py-2">
+    <div class="container">
+        <h1> Admin : Update Blog Posts</h1>
+    </div>
+</div>
+
+<div class="container py-5">
+    @if (Model == null)
+    {
+        <p>No Blog Post found</p>
+    }
+    <form method="post">
+        <div class="mb-3">
+            <label class="form-label">Id</label>
+            <input type="text" class="form-control" id="id" asp-for="Id" readonly />
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Heading</label>
+            <input type="text" class="form-control" id="heading" asp-for="Heading" />
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Page Title</label>
+            <input type="text" class="form-control" id="pageTitle" asp-for="PageTitle" />
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Content</label>
+            <textarea class="form-control" id="content" asp-for="Content"></textarea>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Short Description</label>
+            <input type="text" class="form-control" id="shortDescription" asp-for="ShortDescription" />
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Featured Image Url</label>
+            <input type="text" class="form-control" id="featuredImageUrl" asp-for="FeaturedImageUrl" />
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Url Handle</label>
+            <input type="text" class="form-control" id="urlHandle" asp-for="UrlHandle" />
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Publish Date</label>
+            <input type="date" class="form-control" id="publishDate" asp-for="PublishDate" />
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Author</label>
+            <input type="text" class="form-control" id="author" asp-for="Author" />
+        </div>
+
+        <div class="form-check mb-3">
+            <input class="form-check-input" type="checkbox" id="visible" asp-for="IsVisible">
+            <label class="form-check-label">
+                Is Visible ?
+            </label>
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Tags</label>
+            <select class="form-select" asp-items="@Model.Tags" asp-for="SelectedTags"></select>   @* Collect multiple tagIds *@
+        </div>
+
+        <div class="mb-3">
+            <button type="submit" class="btn btn-dark">Update</button>
+        </div>
+    </form>
+</div>

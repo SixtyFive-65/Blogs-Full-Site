@@ -22,14 +22,41 @@ namespace Blogz.Web.Repositories
             return createBlog;
         }
 
-        public Task<BlogPost?> DeleteAsync(Guid id)
+        public async Task<BlogPost?> DeleteAsync(Guid id)
         {
-            throw new NotImplementedException();
+            var blogPost = await blogsDbContext.BlogPosts.FindAsync(id);
+
+            blogsDbContext.BlogPosts.Remove(blogPost);
+
+            await blogsDbContext.SaveChangesAsync();    
+
+           return blogPost;
         }
 
-        public Task<BlogPost?> EditAsync(BlogPost editBlog)
+        public async Task<BlogPost?> EditAsync(BlogPost editBlog)
         {
-            throw new NotImplementedException();
+            var existingBlogPost =await blogsDbContext.BlogPosts.FindAsync(editBlog.Id);
+
+            if (existingBlogPost != null)
+            {
+                existingBlogPost.Id = editBlog.Id;
+                existingBlogPost.Author = editBlog.Author;
+                existingBlogPost.Heading = editBlog.Heading;
+                existingBlogPost.Content = editBlog.Content;
+                existingBlogPost.ShortDescription = editBlog.ShortDescription;
+                existingBlogPost.PublishDate = editBlog.PublishDate;
+                existingBlogPost.IsVisible = editBlog.IsVisible;
+                existingBlogPost.Tags = editBlog.Tags;
+                existingBlogPost.FeaturedImageUrl = editBlog.FeaturedImageUrl;
+                existingBlogPost.UrlHandle = editBlog.UrlHandle;
+                existingBlogPost.PageTitle = editBlog.PageTitle;
+             
+                await blogsDbContext.SaveChangesAsync();
+
+                return existingBlogPost;
+            }
+
+            return null;
         }
 
         public async Task<IEnumerable<BlogPost>> GetAllAsync()
@@ -43,7 +70,7 @@ namespace Blogz.Web.Repositories
 
         public async Task<BlogPost?> GetByIdAsync(Guid id)
         {
-            return await blogsDbContext.BlogPosts.FindAsync(id);
+            return await blogsDbContext.BlogPosts.Include(p => p.Tags).FirstOrDefaultAsync(x => x.Id == id);
         }
     }
 }
