@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Blogz.Web.Repositories;
+using Microsoft.AspNetCore.Mvc;
+using System.Net;
 
 namespace Blogz.Web.Controllers
 {
@@ -6,10 +8,22 @@ namespace Blogz.Web.Controllers
     [ApiController]
     public class ImagesController : ControllerBase
     {
+        private readonly IImageRepository imageRepository;
+
+        public ImagesController(IImageRepository imageRepository)
+        {
+            this.imageRepository = imageRepository;
+        }
         public async Task<IActionResult> UploadAsync(IFormFile file)
         {
+            var imageUrl = await imageRepository.UploadAsync(file);
 
-            return Ok("");
+            if (imageUrl == null)
+            {
+                return Problem("Something went wrong", null, (int)HttpStatusCode.InternalServerError);
+            }
+
+            return new JsonResult(new { link = imageUrl });
         }
     }
 }

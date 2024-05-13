@@ -1,4 +1,89 @@
-1. Create API Controller for Image upload
+---Go to https://cloudinary.com/  --Create account and login.
+
+-https://console.cloudinary.com/pm/c-a3feefb3c79680506ce562745c17bf/getting-started
+
+-> Navigate to dotnet SDK : https://cloudinary.com/documentation/dotnet_quickstart for visual studio setup
+
+--> Install Cloudinary on PM.
+
+PM->Install-Package CloudinaryDotNet
+PM->Install-Package dotenv.net
+
+--> Go to Account to get Env_Name(CloudName).
+--> Go to Access Keys to get API_Key, API_SECRET
+
+1.Appsettings -> add cloudinary connection
+
+  "Cloudinary": {
+    "CloudName": "dctfzifwt",
+    "ApiKey": "666985285582743",
+    "ApiSecret": "rGnnajQDAOV-TM4a45S6mVYLu40"
+  }
+
+2.ImageCloudinaryRepository Repo
+
+public class ImageCloudinaryRepository : IImageRepository
+{
+	private readonly IConfiguration configuration;
+	private readonly Account account;
+
+	public ImageCloudinaryRepository(IConfiguration configuration)
+	{
+		this.configuration = configuration;
+		account = new Account(
+			configuration.GetSection("Cloudinary:CloudName").Value?.ToString(),
+			configuration.GetSection("Cloudinary:ApiKey").Value?.ToString(),
+			configuration.GetSection("Cloudinary:ApiSecret").Value?.ToString());
+	}
+	public async Task<string> UploadAsync(IFormFile file)
+	{
+		var client = new Cloudinary(account);
+
+		var uploadParams = new ImageUploadParams()
+		{
+			File = new FileDescription(file.FileName, file.OpenReadStream()),
+			DisplayName = file.Name
+		};
+
+		var uploadResult = await client.UploadAsync(uploadParams);
+
+		if (uploadResult != null && uploadResult.StatusCode == System.Net.HttpStatusCode.OK)
+		{
+			return uploadResult.SecureUri.ToString();
+		}
+
+		return null;
+	}
+}
+
+3.Controller.cs
+
+public class ImagesController : ControllerBase
+{
+	private readonly IImageRepository imageRepository;
+
+	public ImagesController(IImageRepository imageRepository)
+	{
+		this.imageRepository = imageRepository;
+	}
+	public async Task<IActionResult> UploadAsync(IFormFile file)
+	{
+		var imageUrl = await imageRepository.UploadAsync(file);
+
+		if (imageUrl == null)
+		{
+			return Problem("Something went wrong", null, (int)HttpStatusCode.InternalServerError);
+		}
+
+		return new JsonResult(new { link = imageUrl });
+	}
+}
+
+--PostMan call to upload Image
+ ->Post Method -> Body : form-data -> Key: file -> select file and send request. Link to image is returned.
+ 
+4. Add and Edit BlogPost Views
 
 
 
+ 
