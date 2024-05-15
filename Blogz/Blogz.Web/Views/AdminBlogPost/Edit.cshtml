@@ -39,6 +39,20 @@
         </div>
 
         <div class="mb-3">
+            <label class="form-label">Featured Image Upload</label>
+            <input type="file" id="featuredImageUpload" class="form-control" />
+
+            @if (Model?.FeaturedImageUrl != null)
+            {
+                <img src="@Model.FeaturedImageUrl" id="featuredImageDisplay" style="display:block;width:300px" />
+            }
+            else
+            {
+                <img src="" id="featuredImageDisplay" style="display:none;width:300px" />
+            }
+        </div>
+
+        <div class="mb-3">
             <label class="form-label">Featured Image Url</label>
             <input type="text" class="form-control" id="featuredImageUrl" asp-for="FeaturedImageUrl" />
         </div>

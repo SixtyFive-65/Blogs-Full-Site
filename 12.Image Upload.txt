@@ -82,7 +82,7 @@ public class ImagesController : ControllerBase
 --PostMan call to upload Image
  ->Post Method -> Body : form-data -> Key: "file" -> select file and send request. Link to image is returned.
  
-4. Add and Edit BlogPost Views
+4. Add View
 
 <div class="mb-3">
 	<label class="form-label">Featured Image Upload</label>
@@ -96,35 +96,56 @@ public class ImagesController : ControllerBase
 </div>
 
 @section Scripts {
-    <script>
-        var editor = new FroalaEditor('#content');
+<script>
+	var editor = new FroalaEditor('#content');
 
-        const featuredImageUploadElement = document.getElementById('featuredImageUpload');
-        const featureImageUrlElement = document.getElementById('featuredImageUrl');
-        const featuredImageDisplayElement = document.getElementById('featuredImageDisplay');
+	const featuredImageUploadElement = document.getElementById('featuredImageUpload');
+	const featureImageUrlElement = document.getElementById('featuredImageUrl');
+	const featuredImageDisplayElement = document.getElementById('featuredImageDisplay');
 
-        async function uploadFeaturedImage(e) {
-            console.log(e.target.files[0]);
+	async function uploadFeaturedImage(e) {
+		console.log(e.target.files[0]);
 
-            let data = new FormData();
+		let data = new FormData();
 
-            data.append('file', e.target.files[0]);
+		data.append('file', e.target.files[0]);
 
-            await fetch('/api/Images', {
-                method: 'POST',
-                headers: {
-                    'Accept': '*/*'
-                },
-                body: data
-            }).then(response => response.json()) //convert the response to json
-                .then(result => {
-                    featureImageUrlElement.value = result.link
-                    featuredImageDisplayElement.src = result.link;
-                    featuredImageDisplayElement.style.display = 'block';
-                });
-        }
+		await fetch('/api/Images', {
+			method: 'POST',
+			headers: {
+				'Accept': '*/*'
+			},
+			body: data
+		}).then(response => response.json()) //convert the response to json
+			.then(result => {
+				featureImageUrlElement.value = result.link
+				featuredImageDisplayElement.src = result.link;
+				featuredImageDisplayElement.style.display = 'block';
+			});
+	}
 
-        featuredImageUploadElement.addEventListener('change', uploadFeaturedImage);
+	featuredImageUploadElement.addEventListener('change', uploadFeaturedImage);
 
-    </script>
+</script>
 }
+
+5. Edit View
+
+<div class="mb-3">
+  <label class="form-label">Featured Image Upload</label>
+  <input type="file" id="featuredImageUpload" class="form-control" />
+
+  @if (Model?.FeaturedImageUrl != null)
+  {
+	  <img src="@Model.FeaturedImageUrl" id="featuredImageDisplay" style="display:block;width:300px" />
+  }
+  else
+  {
+	  <img src="" id="featuredImageDisplay" style="display:none;width:300px" />
+  }
+</div>
+
+<div class="mb-3">
+  <label class="form-label">Featured Image Url</label>
+  <input type="text" class="form-control" id="featuredImageUrl" asp-for="FeaturedImageUrl" />
+</div>
