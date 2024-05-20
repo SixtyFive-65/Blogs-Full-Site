@@ -96,5 +96,33 @@
 @section Scripts {
     <script>
         var editor = new FroalaEditor('#content');
+
+        const featuredImageUploadElement = document.getElementById('featuredImageUpload');
+        const featureImageUrlElement = document.getElementById('featuredImageUrl');
+        const featuredImageDisplayElement = document.getElementById('featuredImageDisplay');
+
+        async function uploadFeaturedImage(e) {
+            console.log(e.target.files[0]);
+
+            let data = new FormData();
+
+            data.append('file', e.target.files[0]);
+
+            await fetch('/api/Images', {
+                method: 'POST',
+                headers: {
+                    'Accept': '*/*'
+                },
+                body: data
+            }).then(response => response.json()) //convert the response to json
+                .then(result => {
+                    featureImageUrlElement.value = result.link
+                    featuredImageDisplayElement.src = result.link;
+                    featuredImageDisplayElement.style.display = 'block';
+                });
+        }
+
+        featuredImageUploadElement.addEventListener('change', uploadFeaturedImage);
+
     </script>
 }
