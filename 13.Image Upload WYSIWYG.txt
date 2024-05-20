@@ -1,0 +1,11 @@
+1. On Add and Edit views
+
+---replace   var editor = new FroalaEditor('#content');
+
+with below :
+
+var editor = new FroalaEditor('#content', {
+  imageUploadURL: '/api/images'
+});
+
+--Froala will upload using the Images controller

@@ -68,6 +68,11 @@ namespace Blogz.Web.Repositories
             return blogposts;
         }
 
+        public async Task<BlogPost?> GetByHandleAsync(string urlHandle)
+        {
+            return await blogsDbContext.BlogPosts.Include(p => p.Tags).FirstOrDefaultAsync(x => x.UrlHandle == urlHandle);
+        }
+
         public async Task<BlogPost?> GetByIdAsync(Guid id)
         {
             return await blogsDbContext.BlogPosts.Include(p => p.Tags).FirstOrDefaultAsync(x => x.Id == id);

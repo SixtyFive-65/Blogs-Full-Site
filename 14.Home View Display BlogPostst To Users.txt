@@ -1,0 +1,127 @@
+1. RUN Bloggie+MVC+Blog+Seed script. to populate seed data
+
+-> Go to www.pixels.com
+
+-> Home/Index/cshtml -- Create Hero Section and Content under 
+
+@{
+    ViewData["Title"] = "Home Page";
+}
+<div class="container col-xxl-8 px-4 py-5">
+@* HEROE SECTION *@
+<div class="row align-items-center g-5 py-3">
+	@*  Row for Hero section with the left and right divs *@
+	<div class="col-12 col-lg-6">
+		@*  Left handside heading and summary text*@
+		<h1 class="display-g fw-bold lh-1 mb-3">
+			Blogz - The Blogzz
+		</h1>
+		<p class="lead py-3">
+			The Bloggz is a blogs website that houses various kind and typ of blogs
+			like CSS,HTML,C#,ASP,Javascript and Web hosting etc.
+
+			Here you can find the latest blog articles, Join our website and App to get weekly updates.
+		</p>
+	</div>
+
+	<div class="col-12 col-lg-6">
+		@*  Right handside will have an image *@
+		<img src="https://images.fineartamerica.com/images/artworkimages/mediumlarge/3/tech-hero-mindy-sommers.jpg" alt="Blogz - The blogzz" class="d-block mx-lg-auto img-fluid" width="350" />
+	</div>
+</div>
+
+@*     After hero Div -> content below
+ *@  
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-6">
+                @if(Model != null && Model.Any())
+                {
+                    foreach(var blogPost in Model) iterate through blogz
+                    {
+                        <div class="mb-5 bg-light box-shadow p-4">
+                            <img src="@blogPost.FeaturedImageUrl" alt="@blogPost.Heading" class="mb-2 d-block img-fluid"/>
+                            <h2 class="mb-4">@blogPost.Heading </h2>
+                            <p class="mb-4">
+                                Author : @blogPost.Author
+                                <br/>
+                                Publish Date : @blogPost.PublishDate.ToShortDateString()
+                            </p>
+                            <p class="mb-4">
+                                @foreach (var tag in blogPost.Tags)   iterate through tags
+                                {
+                                    <span class="badge bg-secondary me-1">@tag.Name</span>
+                                }
+                            </p>
+                            <p class="mb-4">@blogPost.ShortDescription</p>
+                            <a class="btn btn-dark" asp-area="" asp-controller="Blogs" asp-action="Index" asp-route-urlHandle="@blogPost.UrlHandle">Read More</a>
+                        </div>
+                    }
+                }
+        </div>
+    </div>
+</div>
+
+
+2. Create Blogs controller
+
+public class BlogsController : Controller
+{
+	private readonly IBlogPostRepository blogPostRepository;
+
+	public BlogsController(IBlogPostRepository blogPostRepository)
+	{
+		this.blogPostRepository = blogPostRepository;
+	}
+
+	[HttpGet]
+	public async Task<IActionResult> Index(string urlHandle)
+	{
+		var blogPosts = await blogPostRepository.GetByHandleAsync(urlHandle);
+
+		return View(blogPosts);
+	}
+}
+
+3.Blogs index view
+
+@model Blogz.Web.Models.Domain.BlogPost
+@{
+    ViewData["Title"] = Model.PageTitle;     /// Shows page title on the window tab
+}
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-12 col-lg-6">
+            @if(Model != null)
+            {
+                <h1 class="mb-3">@Model.Heading</h1>
+                <div class="d-flex justify-content-between mb-3">
+                    <span class="text-secondary">@Model.Author</span>
+                    <span class="text-secondary">@Model.PublishDate.ToShortDateString()</span>
+                </div>
+                <div class="mb-3 d-flex">
+                    @foreach (var tag in Model.Tags)
+                    {
+                        <span class="badge bg-secondary me-1">@tag.Name</span>
+                    }
+                </div>
+                <img src="@Model.FeaturedImageUrl" class="d-block img-fluid mb-3" />
+
+                <div class="mb-3 blog-details-content">
+                @Html.Raw(Model.Content)    
+                </div>
+            }
+            else
+            {
+                <p>Blog Post not found!!!</p>
+            }
+        </div>
+    </div>
+</div>
+
+4. CSS for Images over-flow -> Open Site.css (wwwroot->Css->site.css)
+
+.blog-details-content img{
+    max-width: 100%;
+}
+
