@@ -1,0 +1,91 @@
+---NB .AspNetCore.Identity.Application cookie gets created on successful login -> Inspect -> Application-> Storage ->Cookies
+
+--If you delete the cookie then the user will have to login again!!!!!
+
+1.Login View
+
+@model Blogz.Web.Models.ViewModels.LoginModel
+@{
+}
+
+<div class="container mx-auto">
+    <div class="row justify-content-center">
+        <div class="col-12 col-lg-6">
+            <h1 class="mt-3 mb-3 h3">Login
+            </h1>
+            <form method="post">
+                <div class="mb-3">
+                    <label class="form-label">Username</label>
+                    <input type="text" id="username" class="form-control" asp-for="UserName" />
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Password</label>
+                    <input type="password" id="password" class="form-control" asp-for="Password" />
+                </div>
+
+                <div class="mb-3">
+                    <button type="submit" class="btn btn-dark">Login</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+2.Layout.cshtml   -> Inject Sign in manager
+ 
+@using Microsoft.AspNetCore.Identity
+@using Blogz.Web.Models.Domain.Entities
+@inject SignInManager<ApplicationUser> signInManager
+ 
+---> Register and Login button should only show for users who are not logged In else show Logout button.
+ 
+</ul>
+<div class="d-flex align-items-center">
+   @if (signInManager.IsSignedIn(User))
+   {
+	    <div class="me-3 text-light" >
+		   @User?.Identity?.Name
+	   </div>
+	   <a class="btn me-3 bg-light text-dark" asp-area="" asp-controller="Account" asp-action="LogOut">Log Out</a>
+   }
+   else
+   {
+	   <a class="btn me-3 bg-light text-dark" asp-area="" asp-controller="Account" asp-action="Register">Register</a>
+	   <a class="btn me-3 bg-light text-dark" asp-area="" asp-controller="Account" asp-action="Login">Login</a>
+   }
+</div>
+
+3.Account Controller
+
+ public class AccountController : Controller
+ {
+     private readonly UserManager<ApplicationUser> userManager;
+     private readonly SignInManager<ApplicationUser> signInManager;
+
+     public AccountController(UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager)
+     {
+         this.userManager = userManager;
+         this.signInManager = signInManager;
+     }
+
+     [HttpGet]
+     public IActionResult Login()
+     {
+         return View();
+     }
+
+     [HttpPost]
+     public async Task<IActionResult> Login(LoginModel model)
+     {
+
+         var loginResult = await signInManager.PasswordSignInAsync(model.UserName, model.Password, false, false);
+
+         if (loginResult != null && loginResult.Succeeded)
+         {
+             return RedirectToAction("Index", "Home");
+         }
+         return View();
+     }
+ }
+ 
+ 

@@ -27,7 +27,7 @@ P@ssword1
             </div>
 
             <div class="mb-3">
-                <button type="submit" class="btn btn-dark" asp-area="" asp-controller="Account" asp-action="Register">Register</button>
+                <button type="submit" class="btn btn-dark">Register</button>
             </div>
             </form>
         </div>
