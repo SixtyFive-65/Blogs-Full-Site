@@ -5,7 +5,7 @@ namespace Blogz.Web.Data
 {
     public class BlogsDbContext : DbContext
     {
-        public BlogsDbContext(DbContextOptions options) : base(options)
+        public BlogsDbContext(DbContextOptions<BlogsDbContext> options) : base(options)
         {
         }
 
