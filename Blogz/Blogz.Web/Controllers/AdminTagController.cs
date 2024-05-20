@@ -1,6 +1,7 @@
 ﻿using Blogz.Web.Models.Domain;
 using Blogz.Web.Models.ViewModels;
 using Blogz.Web.Repositories;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Blogz.Web.Controllers
@@ -14,6 +15,7 @@ namespace Blogz.Web.Controllers
             this.tagRepository = tagRepository;
         }
 
+        [Authorize(Roles = "SuperAdmin,Admin")]
         [HttpGet]
         public IActionResult Add()
         {

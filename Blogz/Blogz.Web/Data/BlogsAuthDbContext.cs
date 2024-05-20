@@ -55,11 +55,12 @@ namespace Blogz.Web.Data
                 UserName = "superadmin@gmail.com",
                 Email = "superadmin@gmail.com",
                 NormalizedEmail = "superadmin@gmail.com".ToUpper(),
-                NormalizedUserName = "superadmin@gmail.com".ToUpper()
+                NormalizedUserName = "superadmin@gmail.com".ToUpper(),
+                SecurityStamp = superAdminId.ToString(),    
             };
 
             superAdminUser.PasswordHash = new PasswordHasher<ApplicationUser>()
-                .HashPassword(superAdminUser, "superadmin@gmail"); // Create password
+                .HashPassword(superAdminUser, "Superadmin@gmail1"); // Create password
 
             builder.Entity<ApplicationUser>().HasData(superAdminUser); // Insert super user in the database
 

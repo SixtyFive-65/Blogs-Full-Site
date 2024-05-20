@@ -55,7 +55,6 @@ namespace Blogz.Web.Controllers
         [HttpPost]
         public async Task<IActionResult> Login(LoginModel model)
         {
-
             var loginResult = await signInManager.PasswordSignInAsync(model.UserName, model.Password, false, false);
 
             if (loginResult != null && loginResult.Succeeded)
@@ -71,6 +70,12 @@ namespace Blogz.Web.Controllers
             await signInManager.SignOutAsync();
 
             return RedirectToAction("Index", "Home");
+        }
+
+        [HttpGet]
+        public IActionResult AccessDenied()
+        {
+            return View();
         }
     }
 }

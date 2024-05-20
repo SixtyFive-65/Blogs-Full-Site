@@ -4,6 +4,7 @@ using Blogz.Web.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Blogz.Web.Migrations.BlogsAuthDb
 {
     [DbContext(typeof(BlogsAuthDbContext))]
-    partial class BlogsAuthDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240520213827_Initial Auth DbV2")]
+    partial class InitialAuthDbV2
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -92,15 +95,14 @@ namespace Blogz.Web.Migrations.BlogsAuthDb
                         {
                             Id = new Guid("dea533e1-bb48-46a9-94b5-b8e44c2bde4f"),
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "850a7937-34c6-4fd0-b1fc-fbef52eb41e9",
+                            ConcurrencyStamp = "3652c7c8-b9e9-426b-8356-267e8f38f0c6",
                             Email = "superadmin@gmail.com",
                             EmailConfirmed = false,
                             LockoutEnabled = false,
                             NormalizedEmail = "SUPERADMIN@GMAIL.COM",
                             NormalizedUserName = "SUPERADMIN@GMAIL.COM",
-                            PasswordHash = "AQAAAAIAAYagAAAAEFfM86HNsm0v9DV5RLMonpTSmRMsfhWdVCO6ANvEZqvoFgAdD2kstvnWOtGHWu/8OA==",
+                            PasswordHash = "AQAAAAIAAYagAAAAEMCKclmHmCC7RFkrYYyv0dOq0uX36CLj42ASsmU6wHv9nrPV1pjgFAds1/3HxHRJrw==",
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "dea533e1-bb48-46a9-94b5-b8e44c2bde4f",
                             TwoFactorEnabled = false,
                             UserName = "superadmin@gmail.com"
                         });

@@ -1,0 +1,41 @@
+---> Add [Authorize] attribute to restrict access only to logged in users.
+
+1. We can use the attribute like so  [Authorize(Roles = "SuperAdmin,Admin")]
+
+
+2. If a user doesn't have access, they get redirected to account/accessDenied so we add the controller action on Account controller
+
+[HttpGet]
+public async Task<IActionResult> LogOut()
+{
+	await signInManager.SignOutAsync();
+
+	return RedirectToAction("Index", "Home");
+}
+
+3. AccessDenied View
+
+@{
+}
+
+<div class="container my-5">
+    <h2>Access to this page is restricted to Admins</h2>
+</div>
+
+4. Restrict Viewing of Admin Tab to Admins and SuperAdmins
+
+@if (signInManager.IsSignedIn(User) && User.IsInRole("Admin"))
+{
+	<li class="nav-item dropdown">
+		<a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+			Admin
+		</a>
+		<ul class="dropdown-menu">
+			<li><a class="dropdown-item" asp-area="" asp-controller="AdminTag" asp-action="Add">Add New Tag</a></li>
+			<li><a class="dropdown-item" asp-area="" asp-controller="AdminTag" asp-action="GetTags">View Tags</a></li>
+			<li><a class="dropdown-item" asp-area="" asp-controller="AdminBlogPost" asp-action="Add">Add Blog Post</a></li>
+			<li><a class="dropdown-item" asp-area="" asp-controller="AdminBlogPost" asp-action="GetAllBlogPosts">View Blog Posts</a></li>
+		</ul>
+	</li>
+}
+
