@@ -15,18 +15,6 @@ namespace Blogz.Web.Data
         {
             base.OnModelCreating(builder);
 
-            //builder.Entity<ApplicationUser>(b =>
-            //{
-            //    b.Property(u => u.Id).HasDefaultValueSql("newsequentialid()");
-            //});
-
-            //builder.Entity<Role>(b =>
-            //{
-            //    b.Property(u => u.Id).HasDefaultValueSql("newsequentialid()");
-            //});
-
-            //Create default roles (SuperAdmin, Admin, User )
-
             var superAdminRoleId = Guid.Parse("db793edd-05be-4dc5-95e2-7d70c551bbe2");
             var adminRoleId = Guid.Parse("93dc99b9-301f-41a8-b3b7-fdb0381bf280");
             var userRoleId =  Guid.Parse("54693d31-64bf-426e-a009-652261fee407");
