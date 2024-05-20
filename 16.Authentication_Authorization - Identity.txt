@@ -1,0 +1,126 @@
+--Install Microsoft.AspNetCore.Identity.EntityFrameworkCore
+
+1. Create a new DbContext for the Auth database. Inherit from IdentityDbContext
+ 
+---NB to use Guids -> Create Custom models that inherit from Identity with a guid type specified.
+
+   public class Role : IdentityRole<Guid> { } 
+   
+   public class ApplicationUser : IdentityUser<Guid> {  }
+
+
+public class AuthDbContext : IdentityDbContext<ApplicationUser, Role, Guid>
+{
+    public AuthDbContext(DbContextOptions options) : base(options)
+    {
+    }
+
+    protected override void OnModelCreating(ModelBuilder builder)
+    {
+        base.OnModelCreating(builder);
+		
+		   //builder.Entity<ApplicationUser>(b =>
+   //{
+   //    b.Property(u => u.Id).HasDefaultValueSql("newsequentialid()");
+   //});
+
+   //builder.Entity<Role>(b =>
+   //{
+   //    b.Property(u => u.Id).HasDefaultValueSql("newsequentialid()");
+   //});
+
+
+        //Create default roles (SuperAdmin, Admin, User )
+
+        var superAdminRoleId = Guid.Parse("db793edd-05be-4dc5-95e2-7d70c551bbe2");
+        var adminRoleId = Guid.Parse("93dc99b9-301f-41a8-b3b7-fdb0381bf280");
+        var userRoleId =  Guid.Parse("54693d31-64bf-426e-a009-652261fee407");
+
+        var roles = new List<Role>  // Seed default Roles
+        {
+            new Role
+            {
+                Id = superAdminRoleId,
+                ConcurrencyStamp = superAdminRoleId.ToString(),
+                Name = "SuperAdmin",
+                NormalizedName = "SuperAdmin",
+            },
+            new Role
+            {
+               Id = adminRoleId,
+               ConcurrencyStamp = adminRoleId.ToString(),
+               Name = "Admin",
+               NormalizedName = "Admin",
+            },
+            new Role
+            {
+                Id =userRoleId,
+                ConcurrencyStamp = userRoleId.ToString(),
+                Name = "Admin",
+                NormalizedName = "Admin",
+            },
+        };
+
+        builder.Entity<IdentityRole>().HasData(roles); // Insert roles in the database
+
+        //Seed Super user
+        var superAdminId = Guid.Parse("dea533e1-bb48-46a9-94b5-b8e44c2bde4f");
+
+        var superAdminUser = new ApplicationUser
+        {
+            Id = superAdminId,
+            UserName = "superadmin@gmail.com",
+            Email = "superadmin@gmail.com",
+            NormalizedEmail = "superadmin@gmail.com".ToUpper(),
+            NormalizedUserName = "superadmin@gmail.com".ToUpper()
+        };
+
+        superAdminUser.PasswordHash = new PasswordHasher<ApplicationUser>()
+            .HashPassword(superAdminUser, "superadmin@gmail"); // Create password
+
+        builder.Entity<IdentityUser>().HasData(superAdminUser); // Insert super user in the database
+
+        var superAdminRoles = new List<IdentityUserRole<Guid>>
+        {
+            new IdentityUserRole<Guid>
+            {
+                
+                UserId = superAdminUser.Id,
+                RoleId = superAdminRoleId,
+            },
+            new IdentityUserRole<Guid>
+            {
+                UserId = superAdminUser.Id,
+                RoleId = adminRoleId,
+            },
+            new IdentityUserRole<Guid>
+            {
+                UserId = superAdminUser.Id,
+                RoleId = userRoleId,
+            }
+        };
+
+        builder.Entity<IdentityUserRole<Guid>>().HasData(superAdminRoles);
+    }
+}
+
+2. Connection String AppSettings.json
+
+"ConnectionStrings": {
+    "BlogsAuthDbConnectionString": "Server=RRT01455\\SQLEXPRESS;Database=BlogsAuthDb;Trusted_Connection=True;TrustServerCertificate=Yes",
+    "BlogsDbConnectionString": "Server=RRT01455\\SQLEXPRESS;Database=BlogsDb;Trusted_Connection=True;TrustServerCertificate=Yes"
+}
+
+3.Program.cs
+
+builder.Services.AddDbContext<BlogsAuthDbContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("BlogsAuthDbConnectionString")));
+
+builder.Services.AddIdentity<IdentityUser, IdentityRole>()
+    .AddEntityFrameworkStores<BlogsAuthDbContext>();
+	
+// Before app.UseAuthorization(); add below
+
+app.UseAuthentication();
+
+	

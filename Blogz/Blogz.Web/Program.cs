@@ -1,5 +1,8 @@
 using Blogz.Web.Data;
+using Blogz.Web.Models.Domain.Entities;
 using Blogz.Web.Repositories;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -9,6 +12,12 @@ builder.Services.AddControllersWithViews();
 
 builder.Services.AddDbContext<BlogsDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("BlogsDbConnectionString")));
+
+builder.Services.AddDbContext<BlogsAuthDbContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("BlogsAuthDbConnectionString")));
+
+builder.Services.AddIdentity<ApplicationUser, Role>()
+    .AddEntityFrameworkStores<BlogsAuthDbContext>();
 
 builder.Services.AddScoped<ITagRepository, TagRepository>();
 builder.Services.AddScoped<IBlogPostRepository, BlogPostRepository>();
@@ -29,6 +38,7 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllerRoute(
