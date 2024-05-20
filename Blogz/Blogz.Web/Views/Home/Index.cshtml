@@ -1,4 +1,4 @@
-﻿@model List<Blogz.Web.Models.Domain.BlogPost>
+﻿@model Blogz.Web.Models.ViewModels.HomeViewModel
 @{
     ViewData["Title"] = "Home Page";
 }
@@ -24,13 +24,27 @@
             <img src="https://images.fineartamerica.com/images/artworkimages/mediumlarge/3/tech-hero-mindy-sommers.jpg" alt="Blogz - The blogzz" class="d-block mx-lg-auto img-fluid" width="350" />
         </div>
     </div>
+
+    <div class="contaner">
+        <div class="row justify-content-center">
+            <div class="col-6 d-flex mb-2">
+                @if(Model != null && Model.Tags.Any())
+                {
+                    @foreach (var tag in Model.Tags)
+                    {
+                        <span class="badge bg-dark me-1">@tag.Name</span>
+                    }
+                }
+            </div>
+        </div>
+    </div>
     @*     after hero Div -> content below
     *@    <div class="container">
         <div class="row justify-content-center">
             <div class="col-6">
-                @if (Model != null && Model.Any())
+                @if (Model != null && Model.BlogPosts.Any())
                 {
-                    foreach (var blogPost in Model)
+                    foreach (var blogPost in Model.BlogPosts)
                     {
                         <div class="mb-5 bg-light box-shadow p-4">
                             <img src="@blogPost.FeaturedImageUrl" alt="@blogPost.Heading" class="mb-2 d-block img-fluid" />
