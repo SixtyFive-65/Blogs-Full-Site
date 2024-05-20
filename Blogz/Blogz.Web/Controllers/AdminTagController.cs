@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Blogz.Web.Controllers
 {
+    [Authorize(Roles = "SuperAdmin,Admin")]
     public class AdminTagController : Controller
     {
         private readonly ITagRepository tagRepository;
@@ -15,7 +16,6 @@ namespace Blogz.Web.Controllers
             this.tagRepository = tagRepository;
         }
 
-        [Authorize(Roles = "SuperAdmin,Admin")]
         [HttpGet]
         public IActionResult Add()
         {

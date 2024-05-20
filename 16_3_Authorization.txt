@@ -39,3 +39,10 @@ public async Task<IActionResult> LogOut()
 	</li>
 }
 
+5. Apply Authorize to Actions or entire controller
+
+[Authorize(Roles = "SuperAdmin,Admin")]
+public class AdminTagController : Controller
+{
+	private readonly ITagRepository tagRepository;
+}

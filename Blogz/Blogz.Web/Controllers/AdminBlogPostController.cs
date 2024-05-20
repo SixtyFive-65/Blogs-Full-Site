@@ -1,10 +1,12 @@
 ﻿using Blogz.Web.Models.Domain;
 using Blogz.Web.Models.ViewModels;
 using Blogz.Web.Repositories;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 namespace Blogz.Web.Controllers
 {
+    [Authorize(Roles = "SuperAdmin,Admin")]
     public class AdminBlogPostController : Controller
     {
         private readonly ITagRepository tagRepository;
