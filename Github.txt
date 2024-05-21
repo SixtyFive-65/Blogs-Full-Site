@@ -1,0 +1,31 @@
+--Create an account and login Git https://github.com/
+--Install Git https://git-scm.com/download/win
+
+command prompt
+ -> git config --global user.name "mxolisi"
+ ->git config --global user.email "45sabelo@gmail.com"
+ 
+-Go back to https://github.com/ 
+
+-> Create a new repository 
+ -Select Git ignore (select visual studio)
+ 
+->Clone Repo :-> Code --> copy repo url 
+
+->Create new folder for the repo "C:\\Code\Repos\Nzwalks"
+--- cmd ->cd C:\Code\Repos\nzwalks
+---cmd -> git clone https://github.com/SixtyFive-65/NzWalks.git
+
+
+-Create project in cloned repository 
+ 
+cmd-> cd nzwalks  //navigate inside the solution folder
+
+cmd-> git add . // adds all changes 
+cmd-> git commit -m "Initial files"  //Locally commits changes
+cmd-> git push   //commits files to repository
+
+***allow authentication via browser.
+
+
+ 
