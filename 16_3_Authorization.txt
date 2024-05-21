@@ -46,3 +46,53 @@ public class AdminTagController : Controller
 {
 	private readonly ITagRepository tagRepository;
 }
+
+6.Apply Redirect so on login you are directed to the requested page and not redirected Home.
+
+---> Add RedirectUrl string to login model and pass redirect string.
+
+[HttpGet]
+public IActionResult Login( string returnUrl)
+{
+	var loginModel = new LoginModel { ReturnUrl = returnUrl }; 
+	
+	return View(loginModel);
+}
+
+--->> Add RedirectUrl as a hidden field
+
+<form method="post">
+	<div class="mb-3">
+		<label class="form-label">Username</label>
+		<input type="text" id="username" class="form-control" asp-for="UserName" />
+	</div>
+	<div class="mb-3">
+		<label class="form-label">Password</label>
+		<input type="password" id="password" class="form-control" asp-for="Password" />
+	</div>
+
+	<div class="mb-3">
+		<button type="submit" class="btn btn-dark">Login</button>
+	</div>
+	<input type="hidden" asp-for="ReturnUrl" />
+</form>
+
+
+7.Controller Login adjustment
+
+[HttpPost]
+public async Task<IActionResult> Login(LoginModel model)
+{
+	var loginResult = await signInManager.PasswordSignInAsync(model.UserName, model.Password, false, false);
+
+	if (loginResult != null && loginResult.Succeeded)
+	{
+		if(!string.IsNullOrEmpty(model.ReturnUrl))
+		{
+			return Redirect(model.ReturnUrl);
+		}
+
+		return RedirectToAction("Index", "Home");
+	}
+	return View();
+}

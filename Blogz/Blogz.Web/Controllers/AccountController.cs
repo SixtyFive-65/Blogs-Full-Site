@@ -47,9 +47,11 @@ namespace Blogz.Web.Controllers
         }
 
         [HttpGet]
-        public IActionResult Login()
+        public IActionResult Login( string returnUrl)
         {
-            return View();
+            var loginModel = new LoginModel { ReturnUrl = returnUrl }; 
+            
+            return View(loginModel);
         }
 
         [HttpPost]
@@ -59,6 +61,11 @@ namespace Blogz.Web.Controllers
 
             if (loginResult != null && loginResult.Succeeded)
             {
+                if(!string.IsNullOrEmpty(model.ReturnUrl))
+                {
+                    return Redirect(model.ReturnUrl);
+                }
+
                 return RedirectToAction("Index", "Home");
             }
             return View();
