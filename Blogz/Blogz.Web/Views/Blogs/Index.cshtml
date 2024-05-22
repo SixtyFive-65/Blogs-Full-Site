@@ -44,6 +44,27 @@
                 <div class="mb-3 blog-details-content">
                     @Html.Raw(Model.Content)
                 </div>
+
+                <div class="card">
+                    <dv class="card-header">
+                        <h5>Comments</h5>
+                        @if (signInManager.IsSignedIn(User))
+                        {
+                            <form method="post">
+                                <div class="mb-3">
+                                    <label class="form-label">Comment</label>
+                                    <input type="text" class="form-control" asp-for="Comment"/>
+                                </div>
+                                <div class="mb-3">
+                                    <button type="submit" class="btn btn-dark">Comment</button>
+                                    <input type="hidden" asp-for="Id" />
+                                </div>
+                            </form>
+                        }
+                    </dv>
+                    <div class="card-body">
+                    </div>
+                </div>
             }
             else
             {
@@ -59,7 +80,7 @@
         const btnLikeElement = document.getElementById('btnLike');
         const totalLikesElement = document.getElementById('totalLikes');
 
-        async function getTotalLikes(){
+        async function getTotalLikes() {
             fetch('/api/BlogPostLike/@Model?.Id/totalLikes', {
                 method: 'GET',
                 headers: {

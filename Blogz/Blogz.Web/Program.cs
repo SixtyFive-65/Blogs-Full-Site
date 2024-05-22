@@ -2,7 +2,6 @@ using Blogz.Web.Data;
 using Blogz.Web.Models.Domain.Entities;
 using Blogz.Web.Repositories;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -33,7 +32,7 @@ builder.Services.AddScoped<ITagRepository, TagRepository>();
 builder.Services.AddScoped<IBlogPostRepository, BlogPostRepository>();
 builder.Services.AddScoped<IImageRepository, ImageCloudinaryRepository>();
 builder.Services.AddScoped<IBlogPostLikeRepository,  BlogPostLikeRepository>();
-
+builder.Services.AddScoped<IBlogPostCommentRepository,  BlogPostCommentRepository>();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

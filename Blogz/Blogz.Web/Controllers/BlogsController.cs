@@ -1,4 +1,5 @@
-﻿using Blogz.Web.Models.Domain.Entities;
+﻿using Blogz.Web.Models.Domain;
+using Blogz.Web.Models.Domain.Entities;
 using Blogz.Web.Models.ViewModels;
 using Blogz.Web.Repositories;
 using Microsoft.AspNetCore.Identity;
@@ -10,15 +11,18 @@ namespace Blogz.Web.Controllers
     {
         private readonly IBlogPostRepository blogPostRepository;
         private readonly IBlogPostLikeRepository blogPostLike;
+        private readonly IBlogPostCommentRepository blogPostCommentRepository;
         private readonly SignInManager<ApplicationUser> signInmanager;
         private readonly UserManager<ApplicationUser> userManager;
 
         public BlogsController(IBlogPostRepository blogPostRepository, IBlogPostLikeRepository blogPostLike,
+            IBlogPostCommentRepository blogPostCommentRepository,
             SignInManager<ApplicationUser> signInmanager,
             UserManager<ApplicationUser> userManager)
         {
             this.blogPostRepository = blogPostRepository;
             this.blogPostLike = blogPostLike;
+            this.blogPostCommentRepository = blogPostCommentRepository;
             this.signInmanager = signInmanager;
             this.userManager = userManager;
         }
@@ -68,6 +72,27 @@ namespace Blogz.Web.Controllers
             }
 
             return View(blogPostLikesViewModel);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Index(BlogDetailsViewModel request)
+        {
+            if (signInmanager.IsSignedIn(User))
+            {
+                var domianModel = new BlogPostComment
+                {
+                    BlogPostId = request.Id,
+                    UserId = Guid.Parse(userManager.GetUserId(User)),
+                    Comment = request.Comment,
+                    CommentDate = DateTime.Now,
+                };
+
+                await blogPostCommentRepository.AddAsync(domianModel);
+
+                return RedirectToAction("Index", "Home",new {urlHandle = request.UrlHandle });
+            }
+           
+            return Forbid();
         }
     }
 }
