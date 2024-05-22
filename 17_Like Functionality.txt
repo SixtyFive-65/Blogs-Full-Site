@@ -32,7 +32,6 @@ public DbSet<BlogPostLike> BlogPostLike { get; set; } // Add Dbset on the dbcont
 3. Go to https://icons.getbootstrap.com/#install and get the CDN for icons
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 
-
 4. Inject signed in manager so we only show the like button for signed in users. (Ontop of view)
 
 @using Microsoft.AspNetCore.Identity
@@ -40,15 +39,24 @@ public DbSet<BlogPostLike> BlogPostLike { get; set; } // Add Dbset on the dbcont
 @inject SignInManager<ApplicationUser> signInManager
 @inject UserManager<ApplicationUser> userManager
 
-
 5. Like Button on View
 
-@if (signInManager.IsSignedIn(User))
-{
- <a id="btnLike" style="cursor: pointer">
-	 <i class="bi bi-hand-thumbs-up"></i>
- </a>
-}
+ <div class="mb-3">
+     @if (signInManager.IsSignedIn(User))
+     {
+         if (Model.Liked)
+         {
+             <a style="cursor: pointer"><i class="bi bi-hand-thumbs-up-fill"></i></a>
+         }
+         else
+         {
+             <a id="btnLike" style="cursor: pointer">
+                 <i class="bi bi-hand-thumbs-up"></i>
+             </a>
+         }
+     }
+     <span id="totalLikes">@Model.TotalLikes</span> Likes
+ </div>
 
 6.Javascript
 
@@ -56,6 +64,19 @@ public DbSet<BlogPostLike> BlogPostLike { get; set; } // Add Dbset on the dbcont
     <script>
 
         const btnLikeElement = document.getElementById('btnLike');
+        const totalLikesElement = document.getElementById('totalLikes');
+
+        async function getTotalLikes(){
+            fetch('/api/BlogPostLike/@Model?.Id/totalLikes', {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': '*/*'
+                }
+            })
+                .then(data => data.json())
+                .then(result => totalLikesElement.innerHTML = result);
+        }
 
         async function addLikeForBlog() {
             fetch('/api/BlogPostLike/Add', {
@@ -68,10 +89,73 @@ public DbSet<BlogPostLike> BlogPostLike { get; set; } // Add Dbset on the dbcont
                     blogPostId: '@Model?.Id',
                     userId: '@userManager.GetUserId(User)'
                 })
-            }).then(console.log('done done'));
+            }).then(() => {
+                btnLikeElement.innerHTML = '<i class="bi bi-hand-thumbs-up-fill"></i>'; //change icon after like
+                btnLikeElement.removeEventListener('click', addLikeForBlog); //only click once
+                getTotalLikes();  //refresh number of likes
+            });
         }
 
         btnLikeElement.addEventListener('click', addLikeForBlog);
 
     </script>
+}
+
+7.Controller 
+
+public BlogsController(IBlogPostRepository blogPostRepository, IBlogPostLikeRepository blogPostLike,
+	SignInManager<ApplicationUser> signInmanager,
+	UserManager<ApplicationUser> userManager)
+{
+	this.blogPostRepository = blogPostRepository;
+	this.blogPostLike = blogPostLike;
+	this.signInmanager = signInmanager;
+	this.userManager = userManager;
+}
+
+[HttpGet]
+public async Task<IActionResult> Index(string urlHandle)
+{
+	var liked = false;
+
+	var blogPostLikesViewModel = new BlogDetailsViewModel();
+
+	var blogPosts = await blogPostRepository.GetByHandleAsync(urlHandle);
+
+	if (signInmanager.IsSignedIn(User))
+	{
+		var likesForBlog = await blogPostLike.GetLikesForBlog(blogPosts.Id);
+
+		var userId = userManager.GetUserId(User);
+
+		if(userId != null)
+		{
+			var userLikes = likesForBlog.FirstOrDefault(p => p.UserId == Guid.Parse(userId));
+			liked = userLikes != null;
+		}
+	}
+
+	if (blogPosts != null)
+	{
+		var likes = await blogPostLike.GetTotalLikes(blogPosts.Id);
+
+		blogPostLikesViewModel = new BlogDetailsViewModel
+		{
+			Id = blogPosts.Id,
+			Author = blogPosts.Author,
+			Content = blogPosts.Content,
+			FeaturedImageUrl = blogPosts.FeaturedImageUrl,
+			Heading = blogPosts.Heading,
+			IsVisible = blogPosts.IsVisible,
+			PageTitle = blogPosts.PageTitle,
+			PublishDate = blogPosts.PublishDate,
+			ShortDescription = blogPosts.ShortDescription,
+			Tags = blogPosts.Tags,
+			UrlHandle = urlHandle,
+			TotalLikes = likes,
+			Liked = liked
+		};
+	}
+
+	return View(blogPostLikesViewModel);
 }
