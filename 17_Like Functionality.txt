@@ -23,3 +23,55 @@ public class BlogPostLike
 	public Guid BlogPostId { get; set; }
 	public Guid UserId { get; set; }
 }
+
+public DbSet<BlogPostLike> BlogPostLike { get; set; } // Add Dbset on the dbcontext
+
+2.Run Migration to apply changes to the DB.
+
+
+3. Go to https://icons.getbootstrap.com/#install and get the CDN for icons
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
+
+4. Inject signed in manager so we only show the like button for signed in users. (Ontop of view)
+
+@using Microsoft.AspNetCore.Identity
+@using Blogz.Web.Models.Domain.Entities
+@inject SignInManager<ApplicationUser> signInManager
+@inject UserManager<ApplicationUser> userManager
+
+
+5. Like Button on View
+
+@if (signInManager.IsSignedIn(User))
+{
+ <a id="btnLike" style="cursor: pointer">
+	 <i class="bi bi-hand-thumbs-up"></i>
+ </a>
+}
+
+6.Javascript
+
+@section Scripts {
+    <script>
+
+        const btnLikeElement = document.getElementById('btnLike');
+
+        async function addLikeForBlog() {
+            fetch('/api/BlogPostLike/Add', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': '*/*'
+                },
+                body: JSON.stringify({
+                    blogPostId: '@Model?.Id',
+                    userId: '@userManager.GetUserId(User)'
+                })
+            }).then(console.log('done done'));
+        }
+
+        btnLikeElement.addEventListener('click', addLikeForBlog);
+
+    </script>
+}

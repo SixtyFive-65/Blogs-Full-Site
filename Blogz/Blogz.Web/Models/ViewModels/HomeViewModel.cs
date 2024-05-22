@@ -6,5 +6,6 @@ namespace Blogz.Web.Models.ViewModels
     {
         public IEnumerable<BlogPost> BlogPosts { get; set; }
         public IEnumerable<Tag> Tags { get; set; }
+        public int Likes {  get; set; }
     }
 }
