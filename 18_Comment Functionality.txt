@@ -30,23 +30,123 @@ public class BlogPostComment
 1. At the bottom of the page we want to view comments.
 
 <div class="card">
-	<dv class="card-header">
-		<h5>Comments</h5>
-		@if (signInManager.IsSignedIn(User))
-		{
-			<form method="post">
-				<div class="mb-3">
-					<label class="form-label">Comment</label>
-					<input type="text" class="form-control" asp-for="Comment"/>
-				</div>
-				<div class="mb-3">
-					<button type="submit" class="btn btn-dark">Comment</button>
-					<input type="hidden" asp-for="Id" />
-				</div>
-			</form>
-		}
-	</dv>
-	<div class="card-body">
-	</div>
+   <dv class="card-header">
+	   <h5>Comments</h5>
+	   @if (signInManager.IsSignedIn(User))
+	   {
+		   <form method="post">
+			   <div class="mb-3">
+				   <label class="form-label">Comment</label>
+				   <input type="text" class="form-control" asp-for="Comment"/>
+			   </div>
+			   <div class="mb-3">
+				   <button type="submit" class="btn btn-dark">Comment</button>
+				   <input type="hidden" asp-for="Id" />
+				   <input type="hidden" asp-for="UrlHandle" />
+			   </div>
+		   </form>
+	   }
+   </dv>
+   <div class="card-body">
+	   @if(Model.Comments != null && Model.Comments.Any())
+	   {
+		   @foreach ( var c in Model.Comments)
+		   {
+			   <div class="card mb-3">
+				   <div>
+					   @c.Comment
+				   </div>
+				   <div class="d-flex justify-content-between">
+					   <span class="text-secondary">@c.UserName</span>
+					   <span class="text-secondary">@c.CommnetDate.ToShortDateString()</span>
+				   </div>
+			   </div>
+		   }
+	   }
+   </div>
 </div>
-2.
+
+2.Controller
+
+[HttpGet]
+public async Task<IActionResult> Index(string urlHandle)
+{
+	var liked = false;
+
+	var blogPostLikesViewModel = new BlogDetailsViewModel();
+
+	var blogPosts = await blogPostRepository.GetByHandleAsync(urlHandle);
+
+	if (signInmanager.IsSignedIn(User))
+	{
+		var likesForBlog = await blogPostLike.GetLikesForBlog(blogPosts.Id);
+
+		var userId = userManager.GetUserId(User);
+
+		if(userId != null)
+		{
+			var userLikes = likesForBlog.FirstOrDefault(p => p.UserId == Guid.Parse(userId));
+			liked = userLikes != null;
+		}
+	}
+
+	if (blogPosts != null)
+	{
+		var likes = await blogPostLike.GetTotalLikes(blogPosts.Id);
+
+		var blogCommentsDomain = await blogPostCommentRepository.GetCommentsById(blogPosts.Id);
+
+		var blogCommentsView = new List<BlogComment>();
+		
+		foreach (var blogComment in blogCommentsDomain)
+		{
+			blogCommentsView.Add(new BlogComment
+			{
+				Comment = blogComment.Comment,
+				CommnetDate = blogComment.CommentDate,
+				UserName = (await userManager?.FindByIdAsync(blogComment?.UserId.ToString()))?.UserName,
+			});
+		}
+
+		blogPostLikesViewModel = new BlogDetailsViewModel
+		{
+			Id = blogPosts.Id,
+			Author = blogPosts.Author,
+			Content = blogPosts.Content,
+			FeaturedImageUrl = blogPosts.FeaturedImageUrl,
+			Heading = blogPosts.Heading,
+			IsVisible = blogPosts.IsVisible,
+			PageTitle = blogPosts.PageTitle,
+			PublishDate = blogPosts.PublishDate,
+			ShortDescription = blogPosts.ShortDescription,
+			Tags = blogPosts.Tags,
+			UrlHandle = urlHandle,
+			TotalLikes = likes,
+			Liked = liked,
+			Comments = blogCommentsView
+		};
+	}
+
+	return View(blogPostLikesViewModel);
+}
+
+[HttpPost]
+public async Task<IActionResult> Index(BlogDetailsViewModel request)
+{
+	if (signInmanager.IsSignedIn(User))
+	{
+		var domianModel = new BlogPostComment
+		{
+			BlogPostId = request.Id,
+			UserId = Guid.Parse(userManager.GetUserId(User)),
+			Comment = request.Comment,
+			CommentDate = DateTime.Now,
+		};
+
+		await blogPostCommentRepository.AddAsync(domianModel);
+
+		return RedirectToAction("Index", "Blogs",new {urlHandle = request.UrlHandle });
+	}
+   
+	return View();
+}

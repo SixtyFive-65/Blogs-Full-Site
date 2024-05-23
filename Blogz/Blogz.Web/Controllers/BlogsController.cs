@@ -53,6 +53,20 @@ namespace Blogz.Web.Controllers
             {
                 var likes = await blogPostLike.GetTotalLikes(blogPosts.Id);
 
+                var blogCommentsDomain = await blogPostCommentRepository.GetCommentsById(blogPosts.Id);
+
+                var blogCommentsView = new List<BlogComment>();
+                
+                foreach (var blogComment in blogCommentsDomain)
+                {
+                    blogCommentsView.Add(new BlogComment
+                    {
+                        Comment = blogComment.Comment,
+                        CommnetDate = blogComment.CommentDate,
+                        UserName = (await userManager?.FindByIdAsync(blogComment?.UserId.ToString()))?.UserName,
+                    });
+                }
+
                 blogPostLikesViewModel = new BlogDetailsViewModel
                 {
                     Id = blogPosts.Id,
@@ -67,7 +81,8 @@ namespace Blogz.Web.Controllers
                     Tags = blogPosts.Tags,
                     UrlHandle = urlHandle,
                     TotalLikes = likes,
-                    Liked = liked
+                    Liked = liked,
+                    Comments = blogCommentsView
                 };
             }
 
@@ -89,10 +104,10 @@ namespace Blogz.Web.Controllers
 
                 await blogPostCommentRepository.AddAsync(domianModel);
 
-                return RedirectToAction("Index", "Home",new {urlHandle = request.UrlHandle });
+                return RedirectToAction("Index", "Blogs",new {urlHandle = request.UrlHandle });
             }
            
-            return Forbid();
+            return View();
         }
     }
 }

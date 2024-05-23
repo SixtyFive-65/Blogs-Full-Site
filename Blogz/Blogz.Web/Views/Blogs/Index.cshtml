@@ -58,11 +58,27 @@
                                 <div class="mb-3">
                                     <button type="submit" class="btn btn-dark">Comment</button>
                                     <input type="hidden" asp-for="Id" />
+                                    <input type="hidden" asp-for="UrlHandle" />
                                 </div>
                             </form>
                         }
                     </dv>
                     <div class="card-body">
+                        @if(Model.Comments != null && Model.Comments.Any())
+                        {
+                            @foreach ( var c in Model.Comments)
+                            {
+                                <div class="card mb-3">
+                                    <div>
+                                        @c.Comment
+                                    </div>
+                                    <div class="d-flex justify-content-between">
+                                        <span class="text-secondary">@c.UserName</span>
+                                        <span class="text-secondary">@c.CommnetDate.ToShortDateString()</span>
+                                    </div>
+                                </div>
+                            }
+                        }
                     </div>
                 </div>
             }
