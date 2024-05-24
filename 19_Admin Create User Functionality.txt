@@ -1,0 +1,177 @@
+1. Controller
+
+[HttpGet]
+public async Task<IActionResult> Index(string urlHandle)
+{
+	var liked = false;
+
+	var blogPostLikesViewModel = new BlogDetailsViewModel();
+
+	var blogPosts = await blogPostRepository.GetByHandleAsync(urlHandle);
+
+	if (signInmanager.IsSignedIn(User))
+	{
+		var likesForBlog = await blogPostLike.GetLikesForBlog(blogPosts.Id);
+
+		var userId = userManager.GetUserId(User);
+
+		if(userId != null)
+		{
+			var userLikes = likesForBlog.FirstOrDefault(p => p.UserId == Guid.Parse(userId));
+			liked = userLikes != null;
+		}
+	}
+
+	if (blogPosts != null)
+	{
+		var likes = await blogPostLike.GetTotalLikes(blogPosts.Id);
+
+		var blogCommentsDomain = await blogPostCommentRepository.GetCommentsById(blogPosts.Id);
+
+		var blogCommentsView = new List<BlogComment>();
+		
+		foreach (var blogComment in blogCommentsDomain)
+		{
+			blogCommentsView.Add(new BlogComment
+			{
+				Comment = blogComment.Comment,
+				CommnetDate = blogComment.CommentDate,
+				UserName = (await userManager?.FindByIdAsync(blogComment?.UserId.ToString()))?.UserName,
+			});
+		}
+
+		blogPostLikesViewModel = new BlogDetailsViewModel
+		{
+			Id = blogPosts.Id,
+			Author = blogPosts.Author,
+			Content = blogPosts.Content,
+			FeaturedImageUrl = blogPosts.FeaturedImageUrl,
+			Heading = blogPosts.Heading,
+			IsVisible = blogPosts.IsVisible,
+			PageTitle = blogPosts.PageTitle,
+			PublishDate = blogPosts.PublishDate,
+			ShortDescription = blogPosts.ShortDescription,
+			Tags = blogPosts.Tags,
+			UrlHandle = urlHandle,
+			TotalLikes = likes,
+			Liked = liked,
+			Comments = blogCommentsView
+		};
+	}
+
+	return View(blogPostLikesViewModel);
+}
+
+[HttpPost]
+public async Task<IActionResult> Index(BlogDetailsViewModel request)
+{
+	if (signInmanager.IsSignedIn(User))
+	{
+		var domianModel = new BlogPostComment
+		{
+			BlogPostId = request.Id,
+			UserId = Guid.Parse(userManager.GetUserId(User)),
+			Comment = request.Comment,
+			CommentDate = DateTime.Now,
+		};
+
+		await blogPostCommentRepository.AddAsync(domianModel);
+
+		return RedirectToAction("Index", "Blogs",new {urlHandle = request.UrlHandle });
+	}
+   
+	return View();
+}
+
+2. View -> SuperAdmin can create Admin but Admin can only create users...pop up for creating new users.
+
+@model Blogz.Web.Models.ViewModels.UserViewModel
+@{
+}
+
+<div class="bg-secondary bg-opacity-10 py-2">
+    <div class="container">
+        <h1> Admin - Users </h1>
+    </div>
+</div>
+
+<div>
+    <div class="container py-5">
+        <div class="mb-3 d-flex justify-content-end">
+            <button type="button" class="btn btn-dark" data-bs-toggle="modal" data-bs-target="#CreateUser">
+                Create User
+            </button>
+        </div>
+        @if (Model.Users != null && Model.Users.Any())
+        {
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Id</th>
+                        <th>UserName</th>
+                        <th>EmailAdress</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var u in Model.Users)
+                    {
+                        <tr>
+                            <td>@u.Id</td>
+                            <td>@u.UserName</td>
+                            <td>@u.EmailAdress</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+        else
+        {
+            <p>No users found</p>
+        }
+
+    </div>
+</div>
+<form method="post">
+    <div class="modal fade" id="CreateUser" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="exampleModalLabel">Create New User</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div>
+                        <label class="form-label">User name</label>
+                        <input type="text" class="form-control" asp-for="UserName" />
+                    </div>
+                    <div>
+                        <label class="form-label">Email Adress</label>
+                        <input type="text" class="form-control" asp-for="Email" />
+                    </div>
+                    <div>
+                        <label class="form-label">Password</label>
+                        <input type="password" class="form-control" asp-for="Password" />
+                    </div>
+                    <div class="mb-3">
+                        <div class="form-check">
+                            <input type="checkbox" id="chkUserRole" class="form-check-input" value="User" checked disabled />
+                            <label class="form-check-label" for="chkUserRole">User Role</label>
+                        </div>
+                        @if (User.IsInRole("SuperAdmin"))
+                        {
+                            <div class="form-check">
+                                <input type="checkbox" id="chkAdminRole" class="form-check-input" asp-for="IsAdmin" />
+                                <label class="form-check-label" for="chkAdminRole">Admin Role</label>
+                            </div>
+                        }
+
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary">Save changes</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>

@@ -42,7 +42,7 @@ namespace Blogz.Web.Controllers
 
                 var userId = userManager.GetUserId(User);
 
-                if(userId != null)
+                if (userId != null)
                 {
                     var userLikes = likesForBlog.FirstOrDefault(p => p.UserId == Guid.Parse(userId));
                     liked = userLikes != null;
@@ -56,7 +56,7 @@ namespace Blogz.Web.Controllers
                 var blogCommentsDomain = await blogPostCommentRepository.GetCommentsById(blogPosts.Id);
 
                 var blogCommentsView = new List<BlogComment>();
-                
+
                 foreach (var blogComment in blogCommentsDomain)
                 {
                     blogCommentsView.Add(new BlogComment
@@ -104,9 +104,9 @@ namespace Blogz.Web.Controllers
 
                 await blogPostCommentRepository.AddAsync(domianModel);
 
-                return RedirectToAction("Index", "Blogs",new {urlHandle = request.UrlHandle });
+                return RedirectToAction("Index", "Blogs", new { urlHandle = request.UrlHandle });
             }
-           
+
             return View();
         }
     }

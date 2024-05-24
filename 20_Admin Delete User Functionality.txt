@@ -1,0 +1,27 @@
+1.View
+
+<td>
+  <form method="post">
+	  <button class="btn btn-danger" type="submit" asp-controller="AdminUsers" asp-action="Delete" asp-route-id="@u.Id">Delete</button>
+  </form>
+</td>
+
+2.Controller 
+
+[HttpPost]
+public async Task<IActionResult> Delete(Guid id)
+{
+   var user = await userManager.FindByIdAsync(id.ToString());
+
+   if (user != null)
+   {
+	   var result = await userManager.DeleteAsync(user);
+
+	   if (result != null && result.Succeeded)
+	   {
+		   return RedirectToAction("List", "AdminUsers");
+	   }
+   }
+
+   return View();
+}
