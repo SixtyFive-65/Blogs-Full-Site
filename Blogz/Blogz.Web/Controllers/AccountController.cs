@@ -25,22 +25,26 @@ namespace Blogz.Web.Controllers
         [HttpPost]
         public async Task<IActionResult> Register(RegisterModel model)
         {
-            var identityUser = new ApplicationUser
+            if (ModelState.IsValid)
             {
-                UserName = model.UserName,
-                Email = model.Email
-            };
-            
-            var result = await userManager.CreateAsync(identityUser, model.Password); // First Create User 
-
-            if (result.Succeeded)
-            {
-                var roleResult = await userManager.AddToRoleAsync(identityUser, "User");
-
-                if (roleResult.Succeeded)
+                var identityUser = new ApplicationUser
                 {
-                    return RedirectToAction("Register");
+                    UserName = model.UserName,
+                    Email = model.Email
+                };
+
+                var result = await userManager.CreateAsync(identityUser, model.Password); // First Create User 
+
+                if (result.Succeeded)
+                {
+                    var roleResult = await userManager.AddToRoleAsync(identityUser, "User");
+
+                    if (roleResult.Succeeded)
+                    {
+                        return RedirectToAction("Register");
+                    }
                 }
+
             }
 
             return View();
@@ -57,17 +61,21 @@ namespace Blogz.Web.Controllers
         [HttpPost]
         public async Task<IActionResult> Login(LoginModel model)
         {
-            var loginResult = await signInManager.PasswordSignInAsync(model.UserName, model.Password, false, false);
-
-            if (loginResult != null && loginResult.Succeeded)
+            if (ModelState.IsValid)
             {
-                if(!string.IsNullOrEmpty(model.ReturnUrl))
-                {
-                    return Redirect(model.ReturnUrl);
-                }
+                var loginResult = await signInManager.PasswordSignInAsync(model.UserName, model.Password, false, false);
 
-                return RedirectToAction("Index", "Home");
+                if (loginResult != null && loginResult.Succeeded)
+                {
+                    if (!string.IsNullOrEmpty(model.ReturnUrl))
+                    {
+                        return Redirect(model.ReturnUrl);
+                    }
+
+                    return RedirectToAction("Index", "Home");
+                }
             }
+
             return View();
         }
 

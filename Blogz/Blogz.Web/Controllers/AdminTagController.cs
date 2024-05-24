@@ -25,6 +25,13 @@ namespace Blogz.Web.Controllers
         [HttpPost]
         public async Task<IActionResult> Add(SaveTagRequest request)
         {
+            ValidateAddTagRequest(request);
+
+            if (!ModelState.IsValid)
+            {
+                return View();
+            }
+
             var tag = new Tag
             {
                 Name = request.Name,
@@ -102,6 +109,17 @@ namespace Blogz.Web.Controllers
 
             //show failed notification
             return RedirectToAction("Edit", new { tagId = request.Id });
+        }
+
+        private void ValidateAddTagRequest(SaveTagRequest request)
+        {
+            if(request.Name is not null && request.DisplayName is not null)
+            {
+                if(request.Name == request.DisplayName)
+                {
+                    ModelState.AddModelError("DisplayName", "Name can't be the same as displayName");
+                }
+            }
         }
     }
 }

@@ -1,0 +1,111 @@
+1. Client Side -> Users browser
+				-> can be manipulated in the browser
+				->fast but less secure
+
+2.Server side -> happens in the backend
+              ->can't be manipulated
+			  ->slow but more secure
+			  
+
+3. Use Data annotations on the models  (SERVER SIDE)
+
+[Required]		
+[Required(ErrorMessage ="This field is required")]
+[EmailAddress]
+[MinLength(6,ErrorMessage = "Password is minimum 6 characters")]
+	  
+4.Check Model state on the Controller  (SERVER SIDE)
+
+[HttpPost]
+public async Task<IActionResult> Register(RegisterModel model)
+{
+	if (ModelState.IsValid)
+	{
+		var identityUser = new ApplicationUser
+		{
+			UserName = model.UserName,
+			Email = model.Email
+		};
+
+		var result = await userManager.CreateAsync(identityUser, model.Password); // First Create User 
+
+		if (result.Succeeded)
+		{
+			var roleResult = await userManager.AddToRoleAsync(identityUser, "User");
+
+			if (roleResult.Succeeded)
+			{
+				return RedirectToAction("Register");
+			}
+		}
+	}
+
+	return View();
+}
+
+5.Add validation span to view error messages on the view (SERVER SIDE)
+
+<div class="container mx-auto">
+    <div class="row justify-content-center">
+        <div class="col-12 col-lg-6">
+            <h1 class="mt-3 mb-3 h3">
+                Register
+            </h1>
+            <form method="post">
+                <div class="mb-3">
+                    <label class="form-label">Username</label>
+                    <input type="text" id="username" class="form-control" asp-for="UserName" />
+                    <span class="text-danger" asp-validation-for="UserName"></span>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Email</label>
+                    <input type="email" id="email" class="form-control" asp-for="Email" />
+                    <span class="text-danger" asp-validation-for="Email"></span>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Password</label>
+                    <input type="password" id="password" class="form-control" asp-for="Password" />
+                    <span class="text-danger" asp-validation-for="Password"></span>
+                </div>
+
+                <div class="mb-3">
+                    <button type="submit" class="btn btn-dark">Register</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+6. Client Side   (Add Required attribute on Input elements)
+
+<div class="container mx-auto">
+    <div class="row justify-content-center">
+        <div class="col-12 col-lg-6">
+            <h1 class="mt-3 mb-3 h3">
+                Register
+            </h1>
+            <form method="post">
+                <div class="mb-3">
+                    <label class="form-label">Username</label>
+                    <input type="text" id="username" class="form-control" asp-for="UserName" required/>
+                    <span class="text-danger" asp-validation-for="UserName"></span>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Email</label>
+                    <input type="email" id="email" class="form-control" asp-for="Email" required/>
+                    <span class="text-danger" asp-validation-for="Email"></span>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Password</label>
+                    <input type="password" id="password" class="form-control" asp-for="Password" required minlength="6"/>
+                    <span class="text-danger" asp-validation-for="Password"></span>
+                </div>
+
+                <div class="mb-3">
+                    <button type="submit" class="btn btn-dark">Register</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
