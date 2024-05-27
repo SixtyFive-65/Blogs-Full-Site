@@ -2,7 +2,9 @@
 using Azure.Core;
 using Blogz.Web.Data;
 using Blogz.Web.Models.Domain;
+using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.EntityFrameworkCore;
+using System.Linq;
 
 namespace Blogz.Web.Repositories
 {
@@ -42,14 +44,43 @@ namespace Blogz.Web.Repositories
 
             return existingTag;
         }
-            public async Task<IEnumerable<Tag>> GetAllTagsAsync()
+        public async Task<IEnumerable<Tag>> GetAllTagsAsync(string? searchQuery = null, string? sortBy = null, string? sortDirection = null, int pageNumber = 1, int pageSize = 100)
         {
-          return  await blogsDbContext.Tags.ToListAsync();
+            var query =  blogsDbContext.Tags.AsQueryable();
+
+            if (!string.IsNullOrEmpty(searchQuery))  //Filtering
+            {
+                query = query.Where(p => p.Name.Contains(searchQuery) || p.DisplayName.Contains(searchQuery));
+            }
+
+            if (!string.IsNullOrEmpty(sortBy))
+            {
+                var isDec = string.Equals(sortDirection, "Desc", StringComparison.OrdinalIgnoreCase);
+
+                if(string.Equals(sortBy, "Name", StringComparison.OrdinalIgnoreCase))
+                {
+                    query = isDec ? query.OrderByDescending(n => n.Name) : query.OrderBy(n => n.Name); //Sorting
+                }
+
+
+                if (string.Equals(sortBy, "DisplayName", StringComparison.OrdinalIgnoreCase))
+                {
+                    query = isDec ? query.OrderByDescending(n => n.DisplayName) : query.OrderBy(n => n.DisplayName); //Sorting
+                }
+            }
+
+            //Paging
+
+            var skipResult = (pageNumber - 1) * pageSize;
+
+            query = query.Skip(skipResult).Take(pageSize);
+
+            return await query.ToListAsync();
         }
 
         public async Task<Tag?> GetTagAsync(Guid tagId)
         {
-           return  await blogsDbContext.Tags.FirstOrDefaultAsync(p => p.Id == tagId);
+            return await blogsDbContext.Tags.FirstOrDefaultAsync(p => p.Id == tagId);
         }
 
         public async Task<Tag> SaveTagAsync(Tag saveTag)
@@ -60,6 +91,11 @@ namespace Blogz.Web.Repositories
             await blogsDbContext.SaveChangesAsync();
 
             return saveTag;
+        }
+
+        public async Task<int> TotalRecords()
+        {
+            return await blogsDbContext.Tags.CountAsync();
         }
     }
 }

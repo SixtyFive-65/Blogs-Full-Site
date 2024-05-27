@@ -1,0 +1,47 @@
+TAGS.
+
+1. View Button Search
+
+<form method="get" asp-controller="AdminTag" asp-action="GetTags">
+    <div class="container mt-5">
+        <div class="row">
+            <div class="col col-md-4 d-flex fw-bold">
+                <label class="form-label m-1">Search</label>
+                <input type="text" class="form-control" name="searchQuery" value="@ViewBag.SearchQuery" />  // Keeps search query on text box for user friednly
+                <button type="submit" class="btn btn-warning ms-3">Search</button>
+            </div>
+        </div>
+    </div>
+</form>
+
+2. Sorting
+
+<th>
+   Name
+   <span>
+	   <span>
+		   <a class="btn btn-light" asp-controller="AdminTag" asp-action="GetTags" asp-route-sortBy="Name" asp-route-sortDirection="ASC" asp-route-searchQuery="@ViewBag.SearchQuery">
+			   <i class="bg-info bi-arrow-up"></i>
+		   </a>
+	   </span>
+	   <span>
+		   <a class="btn btn-light" asp-controller="AdminTag" asp-action="GetTags" asp-route-sortBy="Name" asp-route-sortDirection="Desc" asp-route-searchQuery="@ViewBag.SearchQuery">
+			   <i class="bg-info bi-arrow-down"></i>
+		   </a>
+	   </span>
+   </span>
+</th>
+
+3.Controller 
+
+[HttpGet]
+public async Task<IActionResult> GetTags(string? searchQuery, string? sortBy, string? sortDirection)
+{
+   ViewBag.SearchQuery = searchQuery;  
+   ViewBag.SortBy = sortBy;
+   ViewBag.SortDirection = sortDirection;
+
+   var tags = await tagRepository.GetAllTagsAsync(searchQuery, sortBy, sortDirection);
+
+   return View(tags);
+}

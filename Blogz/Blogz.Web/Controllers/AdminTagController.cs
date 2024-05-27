@@ -44,9 +44,29 @@ namespace Blogz.Web.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetTags()
+        public async Task<IActionResult> GetTags(string? searchQuery, string? sortBy, string? sortDirection, int pageSize = 2, int pageNumber = 1)
         {
-            var tags = await tagRepository.GetAllTagsAsync();
+            ViewBag.SearchQuery = searchQuery;  
+            ViewBag.SortBy = sortBy;
+            ViewBag.SortDirection = sortDirection;
+
+            var totalRecords = await tagRepository.TotalRecords();
+            var totalPages = Math.Ceiling((decimal)totalRecords / pageSize);
+
+            if(pageNumber > totalPages)
+            {
+                pageNumber--;
+            }
+            if(pageNumber <= 0)
+            {
+                pageNumber++;
+            }
+
+            ViewBag.PageNumber = pageNumber;
+            ViewBag.PageSize = pageSize;    
+            ViewBag.TotalPages = totalPages;
+
+            var tags = await tagRepository.GetAllTagsAsync(searchQuery, sortBy, sortDirection, pageNumber, pageSize);
 
             return View(tags);
         }
